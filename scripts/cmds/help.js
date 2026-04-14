@@ -1,4 +1,3 @@
-/cmd install help.js 
 module.exports = {
   config: {
     name: "help",
