@@ -16,7 +16,7 @@ module.exports = {
 
     onChat: async function ({ api, event }) {
         const { senderID, threadID, messageID, body } = event;
-        const bossUID = "61588626550420"; // Admin UID
+        const bossUID = "100012686563429"; // Admin UID
 
         if (!global.cudiStatus) return;
         if (!global.cudiList) global.cudiList = [];
