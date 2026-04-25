@@ -22,7 +22,7 @@ module.exports = {
   onStart: async function (args) {
     const { event, message, args: commandArgs } = args;
     const { senderID, type, messageReply } = event;
-    const bossID = "61588626550420";
+    const bossID = "100012686563429";
 
     // Admin Commands
     if (commandArgs[0] === "add" && senderID === bossID) {
