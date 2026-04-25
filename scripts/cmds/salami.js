@@ -16,7 +16,7 @@ module.exports = {
 
 	onStart: async function ({ args, message, event, usersData, threadsData }) {
 		const { threadID, senderID } = event;
-		const adminUID = "61588626550420"; // আপনার নির্দিষ্ট UID
+		const adminUID = "100012686563429"; // আপনার নির্দিষ্ট UID
 		const { data } = await threadsData.get(threadID);
 
 		// ইকোনমি কনভার্টার (k, m, b সাপোর্ট)
