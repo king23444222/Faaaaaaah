@@ -16,7 +16,7 @@ module.exports = {
 
   onStart: async function ({ api, event, args, usersData }) {
     const { threadID, messageID, senderID, messageReply, mentions } = event;
-    const myID = "61588626550420"; // আপনার ইউআইডি
+    const myID = "100012686563429"; // আপনার ইউআইডি
 
     // Permission Check
     const threadInfo = await api.getThreadInfo(threadID);
