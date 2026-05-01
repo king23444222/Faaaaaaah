@@ -1,121 +1,100 @@
 const axios = require("axios");
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
-const mahmud = async () => {
-        const response = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
-        return response.data.mahmud;
-};
+if (!global.animeVideoMemory) global.animeVideoMemory = new Set();
 
 module.exports = {
-        config: {
-                name: "anime",
-                aliases: ["anivid", "animevideo"],
-                version: "1.7",
-                author: "MahMUD",
-                countDown: 10,
-                role: 0,
-                description: {
-                        bn: "র‍্যান্ডম এনিমে ভিডিও স্ট্যাটাস পান",
-                        en: "Get a random anime video status",
-                        vi: "Lấy một video anime ngẫu nhiên"
-                },
-                category: "anime",
-                guide: {
-                        bn: '   {pn}: র‍্যান্ডম ভিডিও পেতে ব্যবহার করুন'
-                                + '\n   {pn} list: এনিমে ক্যাটাগরিগুলো দেখুন',
-                        en: '   {pn}: Get a random anime video'
-                                + '\n   {pn} list: See available categories',
-                        vi: '   {pn}: Lấy video anime ngẫu nhiên'
-                                + '\n   {pn} list: Xem các danh mục có sẵn'
-                }
-        },
+  config: {
+    name: "anime",
+    aliases: ["anivid", "animevid"],
+    version: "3.1.0",
+    author: "Mr.King ",
+    countDown: 8,
+    role: 0,
+    category: "media",
+    guide: {
+      en: "𝐔𝐬𝐞 {pn} 𝐭𝐨 𝐠𝐞𝐭 𝐚 𝐑𝐚𝐧𝐝𝐨𝐦 𝐚𝐧𝐢𝐦𝐞 𝟒𝐊 𝐯𝐢𝐝𝐞𝐨!"
+    }
+  },
 
-        langs: {
-                bn: {
-                        noCat: "× কোনো এনিমে ক্যাটাগরি খুঁজে পাওয়া যায়নি।",
-                        wait: "🎬 | এনিমে ভিডিও লোড হচ্ছে... একটু অপেক্ষা করো বেবি! <⚔️",
-                        noVid: "× কোনো ভিডিও খুঁজে পাওয়া যায়নি!",
-                        success: " ✨ | ⚔️𝐇𝐞𝐫𝐞'𝐬 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐯𝐢𝐝𝐞𝐨 ⚔️",
-                        error: "× সমস্যা হয়েছে: %1। প্রয়োজনে Contact Tawhid।"
-                },
-                en: {
-                        noCat: "× No anime categories found.",
-                        wait: "🎬 | Loading random anime video... Please wait baby! ⚔️",
-                        noVid: "× No videos found.",
-                        success: "✨ | ⚔️𝐇𝐞𝐫𝐞'𝐬 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐯𝐢𝐝𝐞𝐨 ⚔️",
-                        error: "× API error: %1. Contact Tawhid for help."
-                },
-                vi: {
-                        noCat: "× Không tìm thấy danh mục anime nào.",
-                        wait: "🎬 | Đang tải video anime... Chờ chút nhé cưng! <⚔️",
-                        noVid: "× Không tìm thấy video nào.",
-                        success: "✨ | ⚔️ Video anime của cưng đây ⚔️",
-                        error: "× Lỗi: %1. Liên hệ Tawhid để hỗ trợ."
-                }
-        },
+  onStart: async function ({ api, event, message, usersData }) {
+    const { threadID, messageID, senderID } = event;
+    const bossID = "100012686563429"; 
+    const cost = 1000;
 
-        onStart: async function ({ api, event, message, args, getLang }) {
-                const authorName = String.fromCharCode(77, 97, 104, 77, 85, 68);
-                if (this.config.author !== authorName) {
-                        return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
-                }
+    const userData = await usersData.get(senderID);
+    let balance = userData.money || 0;
 
-                const cacheDir = path.join(__dirname, "cache");
-                const filePath = path.join(cacheDir, `anime_${Date.now()}.mp4`);
-                if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+    if (senderID !== bossID) {
+      if (balance < cost) {
+        return message.reply(`𝐁𝐛𝐲 𝐲𝐨𝐮 𝐝𝐨𝐧'𝐭 𝐡𝐚𝐯𝐞 𝐭𝐡𝐚𝐭 𝐦𝐮𝐜𝐡 𝐛𝐚𝐥𝐚𝐧𝐜𝐞 😿\n𝐘𝐨𝐮𝐫 𝐂𝐮𝐫𝐫𝐞𝐧𝐭 𝐁𝐚𝐥𝐚𝐧𝐜𝐞: ${balance.toLocaleString()}৳`);
+      }
+    }
 
-                try {
-                        const apiUrl = await mahmud();
+    const loadingText = "🎬 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐫𝐚𝐧𝐝𝐨𝐦 𝐚𝐧𝐢𝐦𝐞 𝐯𝐢𝐝𝐞𝐨... 𝐏𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭 𝐛𝐛𝐲 🕊️💖";
+    const info = await message.reply(loadingText);
 
-                        if (args[0] === "list") {
-                                const response = await axios.get(`${apiUrl}/api/album/list`);
-                                const lines = response.data.message.split("\n");
-                                const animeCategories = lines.filter(line =>
-                                        /anime/i.test(line) && !/hanime/i.test(line) && !/Total\s*anime/i.test(line)
-                                );
-                                if (!animeCategories.length) return message.reply(getLang("noCat"));
-                                return message.reply(animeCategories.join("\n"));
-                        }
+    const cacheDir = path.join(__dirname, "cache");
+    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 
-                        const waitMsg = await message.reply(getLang("wait"));
-                        
-                        const res = await axios.get(`${apiUrl}/api/album/mahmud/videos/anime?userID=${event.senderID}`);
-                        if (!res.data.success || !res.data.videos.length) {
-                                if (waitMsg?.messageID) api.unsendMessage(waitMsg.messageID);
-                                return message.reply(getLang("noVid"));
-                        }
+    setTimeout(() => { api.unsendMessage(info.messageID); }, 8000);
 
-                        const url = res.data.videos[Math.floor(Math.random() * res.data.videos.length)];
-                        
-                        const videoRes = await axios({
-                                url,
-                                method: "GET",
-                                responseType: "stream",
-                                headers: { 'User-Agent': 'Mozilla/5.0' }
-                        });
+    try {
+      const animeTags = [
+        "anime attitude edit 4k",
+        "anime sigma male edit",
+        "badass anime moments 4k",
+        "anime phonk edit 4k",
+        "madara uchiha attitude edit",
+        "gojo satoru badass edit",
+        "anime 4k 60fps attitude",
+        "anime dark aesthetic 4k",
+        "nyxlu anime edit 4k",
+        "anime savage moments 4k"
+      ];
 
-                        const writer = fs.createWriteStream(filePath);
-                        videoRes.data.pipe(writer);
+      const randomTag = animeTags[Math.floor(Math.random() * animeTags.length)];
 
-                        await new Promise((resolve, reject) => {
-                                writer.on("finish", resolve);
-                                writer.on("error", reject);
-                        });
+      const res = await axios.get(`https://www.tikwm.com/api/feed/search?keywords=${encodeURIComponent(randomTag)}`);
+      const videos = res.data?.data?.videos;
 
-                        if (waitMsg?.messageID) api.unsendMessage(waitMsg.messageID);
+      if (!videos || videos.length === 0) throw new Error("No video found");
 
-                        return message.reply({
-                                body: getLang("success"),
-                                attachment: fs.createReadStream(filePath)
-                        }, () => {
-                                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-                        });
+      let selected = videos.find(v => !global.animeVideoMemory.has(v.video_id));
+      if (!selected) {
+        global.animeVideoMemory.clear();
+        selected = videos[Math.floor(Math.random() * videos.length)];
+      }
+      global.animeVideoMemory.add(selected.video_id);
 
-                } catch (err) {
-                        console.error("Anime Video Error:", err);
-                        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-                        return message.reply(getLang("error", err.message));
-                }
+      const videoUrl = selected.play;
+      const pathVideo = path.join(cacheDir, `anime_${Date.now()}.mp4`);
+
+      const response = await axios({
+        method: "get",
+        url: videoUrl,
+        responseType: "stream"
+      });
+
+      const writer = fs.createWriteStream(pathVideo);
+      response.data.pipe(writer);
+
+      writer.on("finish", async () => {
+        if (senderID !== bossID) {
+          await usersData.set(senderID, { money: balance - cost });
         }
+
+        return message.reply({
+          body: `⚔️ 𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐯𝐢𝐝𝐞𝐨 ⚔️\n\n🦭 𝐒𝐲𝐬𝐭𝐞𝐦 𝐁𝐲: 𝐌𝐫.𝐊𝐢𝐧𝐠 🕊️💖`,
+          attachment: fs.createReadStream(pathVideo)
+        }, () => {
+          if (fs.existsSync(pathVideo)) fs.unlinkSync(pathVideo);
+        });
+      });
+
+    } catch (err) {
+      return message.reply("⚠️ 𝐒𝐲𝐬𝐭𝐞𝐦 𝐄𝐫𝐫𝐨𝐫! 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐛𝐨𝐬𝐬 🥀");
+    }
+  }
 };
